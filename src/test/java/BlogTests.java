@@ -42,10 +42,7 @@ public class BlogTests {
         WebElement submitButton = driver.findElement(By.id("submit"));
         submitButton.click();
         String currentUrl = driver.getCurrentUrl();
-        Assertions.assertEquals(
-                baseUrl+"/how-technology-is-shaping-everyday-life/",
-                currentUrl
-        );
+        Assertions.assertEquals(baseUrl+"/how-technology-is-shaping-everyday-life/",currentUrl);
     }
 
     @Test
@@ -58,10 +55,7 @@ public class BlogTests {
         WebElement submitButton = driver.findElement(By.id("submit"));
         submitButton.click();
         String currentUrl = driver.getCurrentUrl();
-        Assertions.assertEquals(
-                baseUrl+"/how-technology-is-shaping-everyday-life/",
-                currentUrl
-        );
+        Assertions.assertEquals(baseUrl+"/how-technology-is-shaping-everyday-life/",currentUrl);
     }
 
     @Test
@@ -70,15 +64,11 @@ public class BlogTests {
         driver.findElement(By.id("user_login")).sendKeys("author1");
         driver.findElement(By.id("user_pass")).sendKeys("1234");
         driver.findElement(By.id("wp-submit")).click();
-
         driver.get(baseUrl + "/how-technology-is-shaping-everyday-life/");
-
         WebElement commentField = driver.findElement(By.id("comment"));
         commentField.sendKeys("<script>alert('xss')</script>");
         driver.findElement(By.id("submit")).click();
-
-        // Check if alert appeared (it shouldn't)
-        boolean alertPresent = false;
+        boolean alertPresent;
         try {
             org.openqa.selenium.Alert alert = driver.switchTo().alert();
             alertPresent = true;
@@ -86,10 +76,33 @@ public class BlogTests {
         } catch (org.openqa.selenium.NoAlertPresentException e) {
             alertPresent = false;
         }
+        Assertions.assertFalse(alertPresent,"XSS vulnerability detected! Alert dialog appeared — script was executed.");
+    }
 
-        Assertions.assertFalse(
-                alertPresent,
-                "XSS vulnerability detected! Alert dialog appeared — script was executed."
+    @Test
+    public void rapidSubmitSpamPrevention() throws InterruptedException {
+        driver.get(baseUrl + "wp-login.php");
+        driver.findElement(By.id("user_login")).sendKeys("Admin");
+        driver.findElement(By.id("user_pass")).sendKeys("1234");
+        driver.findElement(By.id("wp-submit")).click();
+
+        driver.get(baseUrl + "/5-useful-keyboard-shortcuts-that-can-save-you-time/");
+
+        WebElement commentField = driver.findElement(By.id("comment"));
+        commentField.sendKeys("Spam test comment.");
+
+        for (int i = 0; i < 5; i++) {
+            try {
+                WebElement submitButton = driver.findElement(By.id("submit"));
+                submitButton.click();
+                Thread.sleep(300);
+            } catch (Exception e) {
+                break;
+            }
+        }
+        java.util.List<WebElement> comments = driver.findElements(
+                By.xpath("//*[contains(text(),'Spam test comment.')]")
         );
+        Assertions.assertEquals(1, comments.size());
     }
 }
