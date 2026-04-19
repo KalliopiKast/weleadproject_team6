@@ -1,3 +1,5 @@
+//code by Asimina Lenakou
+
 public class TestContactUs {
     String baseUrl = "http://wordpresstestsite/";
     WebDriver driver;
