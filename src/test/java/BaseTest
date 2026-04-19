@@ -1,0 +1,41 @@
+
+public class WeleadTestAppTests {
+    String baseUrl = "http://wordpresstestsite/";
+    WebDriver driver;
+    @BeforeEach
+    public void setUp(){
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(30));
+        driver.get(baseUrl+"/wp-login.php");
+    }
+    @AfterEach
+    public void tearDown(){
+        driver.quit();
+    }
+    @Test
+    public void AdminTest(){
+        String username = "Admin";
+        String password = "1234";
+        String pageTitle = loginMethod(username, password);
+        String expectedPageTitle = "Dashboard ‹ Digital Balance — WordPress";
+    }
+    private @Nullable String loginMethod(String username, String password) {
+        WebElement userNameField = driver.findElement(By.id("user_login"));
+        userNameField.sendKeys(username);
+        WebElement passWordField = driver.findElement(By.id("user_pass"));
+        passWordField.sendKeys(password);
+        WebElement loginButton = driver.findElement(By.id("wp-submit"));
+        loginButton.click();
+        String pageTitle = driver.getTitle();
+        return pageTitle;
+    }
+    @Test
+    public void subscriber(){
+        String username = "TestUserSub01";
+        String password = "1234";
+        String pageTitle = loginMethod(username, password);
+        String expectedPageTitle = "Profile ‹ Digital Balance — WordPress";
+    }
+}
