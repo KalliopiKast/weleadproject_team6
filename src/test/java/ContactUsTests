@@ -1,0 +1,27 @@
+public class TestContactUs {
+    String baseUrl = "http://wordpresstestsite/";
+    WebDriver driver;
+    @BeforeEach
+    public void setUp(){
+        WebDriverManager.chromedriver().setup();
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+    }
+    @AfterEach
+    public void tearDown(){
+        driver.quit();
+    }
+    @Test
+    public void validFormSubmissionTest(){
+        driver.get(baseUrl + "contact-us/");
+        driver.findElement(By.id("wpforms-76-field_1")).sendKeys("Asimina");
+        driver.findElement(By.id("wpforms-76-field_1-last")).sendKeys("Lenakou");
+        driver.findElement(By.id("wpforms-76-field_2")).sendKeys("asimina@example.com");
+        driver.findElement(By.id("wpforms-76-field_3")).sendKeys("Test message");
+        driver.findElement(By.id("wpforms-submit-76")).click();
+        String pageSource = driver.getPageSource();
+        String response = driver.findElement(By.id("wpforms-confirmation-76")).getText();
+        assertEquals("Thanks for contacting us! We will be in touch with you shortly.","Thanks for contacting us! We will be in touch with you shortly.");
+   }
+}
